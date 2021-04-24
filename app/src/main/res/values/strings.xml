@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Final_POC</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="test">The</string>
+    <string name="URL">https://apidojo-yahoo-finance-v1.p.rapidapi.com/auto-complete?&amp;region=US?&amp;rapidapi-key=7faa103f9fmshf6fbfce284535afp136754jsn4739d8dc991c&amp;</string>
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_register">Register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome!"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+</resources>
