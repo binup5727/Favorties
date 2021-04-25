@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -61,6 +62,49 @@ public class DBHelper extends SQLiteOpenHelper {
 
 
     }
+    
+    public void remove(String email, String fav){
+        String toDB = "";
+        ArrayList<String> favarr = this.getFavArray(email);
+        if(favarr.contains(fav)){
+            favarr.remove(fav);
+
+            for (String txt: favarr) {
+
+                toDB += txt + "~";
+
+            }
+
+            SQLiteDatabase db = this.getReadableDatabase();
+            String query = "SELECT * FROM USER_TABLE WHERE email='" + email + "'";
+            Cursor cursor = db.rawQuery(query, null);
+            cursor.moveToFirst();
+
+            String name = cursor.getString(1);
+
+            ContentValues cv = new ContentValues();
+            //cv.put(ID, id);
+            cv.put(CONTACTS_COLUMN_NAME, name);
+            cv.put(CONTACTS_COLUMN_EMAIL, email);
+            cv.put(CONTACTS_COLUMN_FAVORITE, toDB);
+
+            System.out.println(fav + " next fav");
+            db.update(USER_TABLE, cv, "email=?", new String[]{email});
+            db.close();
+            cursor.close();
+
+
+
+
+
+        }else{
+            System.out.println("not a favorite");
+        }
+
+        
+        
+        
+    }
 
     //GET USER INFO BASED ON SPECIFIC NAME FROM TABLE
     public User get(String email){
@@ -81,6 +125,7 @@ public class DBHelper extends SQLiteOpenHelper {
             user = new User(-1, user_nm, email, fav);
 
         }else{
+            //no user to get
 
 
 
@@ -99,11 +144,11 @@ public class DBHelper extends SQLiteOpenHelper {
         ArrayList<String> favArray = this.getFavArray(email);
 
         if(!favArray.contains(fav)) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT * FROM USER_TABLE WHERE email='" + email + "'";
-        System.out.println("add fav check point");
-        Cursor cursor = db.rawQuery(query, null);
-        cursor.moveToFirst();
+            SQLiteDatabase db = this.getReadableDatabase();
+            String query = "SELECT * FROM USER_TABLE WHERE email='" + email + "'";
+            System.out.println("add fav check point");
+            Cursor cursor = db.rawQuery(query, null);
+            cursor.moveToFirst();
 
 
 
@@ -144,8 +189,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
 
 
-    public boolean check(String user){
-        String query = "SELECT * FROM USER_TABLE WHERE name ='" + user + "'";
+    public boolean check(String email){
+        String query = "SELECT * FROM USER_TABLE WHERE email ='" + email + "'";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(query,null);
         System.out.println("cursor" + cursor);

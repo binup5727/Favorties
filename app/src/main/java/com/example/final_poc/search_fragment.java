@@ -118,7 +118,7 @@ public class search_fragment extends Fragment {
                         dbHelper = new DBHelper(getContext());
                         String remove = stockname;
                         System.out.println(stock_data.get(0) + "name of stock to favorite");
-                        dbHelper.addfav(account.getEmail(), remove);
+                        dbHelper.remove(account.getEmail(), remove);
                     }else{
                         Toast.makeText(getContext(), "Please Make a Search First", Toast.LENGTH_LONG).show();
 

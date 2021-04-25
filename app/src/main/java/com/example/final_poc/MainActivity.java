@@ -72,11 +72,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             System.out.println(account.getDisplayName());
             String input = account.getEmail();
+            System.out.println("input " + input);
             User user = dbHelper.get(input);
-            String name = user.getName();
-            String email = user.getEmail();
-            navuser.setText(name);
-            navemail.setText(email);
+            if(user == null){
+                System.out.println("user object error");
+            }else {
+                System.out.println("name is " + user.getName());
+                String name = user.getName();
+                System.out.println("name is " + user.getName());
+                String email = user.getEmail();
+                System.out.println("name is " + user.getName());
+                navuser.setText(name);
+                System.out.println("name is " + user.getName());
+                navemail.setText(email);
+                System.out.println("name is " + user.getName());
+            }
         }else {
             //no user signed in
 

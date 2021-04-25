@@ -4,16 +4,21 @@ import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+
 import android.content.SharedPreferences;
 
 import com.android.volley.Request;
@@ -41,6 +46,7 @@ public class favorite_fragment extends Fragment {
 
 
 
+
     @SuppressLint("WrongViewCast")
     @Nullable
     @Override
@@ -65,6 +71,28 @@ public class favorite_fragment extends Fragment {
             // No user is signed in
         }
 
+        list.setOnItemClickListener( new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                FragmentManager fragmentManager = getFragmentManager();
+                fragmentManager.beginTransaction().replace(R.id.fragment_container
+                        , new search_fragment()).commit();
+            }
+
+            });
+        list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                System.out.println("long click");
+                PopupWindow popup = new PopupWindow(getContext());
+                popup.showAtLocation(getView(), Gravity.CENTER, 10, 10);
+                popup.update(20, 20, 30, 30);
+                return false;
+            }
+        });
+
+
+
 
 
 
@@ -82,5 +110,8 @@ public class favorite_fragment extends Fragment {
         list.setAdapter(itemsAdapter);
         System.out.println("stock list above");
     }
+
+
+
 
 }
