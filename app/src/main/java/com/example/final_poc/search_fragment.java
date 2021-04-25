@@ -166,7 +166,7 @@ public class search_fragment extends Fragment {
                             JSONObject usstock = (JSONObject) stock.get(0);
                             String name = usstock.getString("longname");
                             String index = usstock.getString("index");
-                            String score = usstock.getString("score");
+                            String symbol = usstock.getString("symbol");
 
 
 
@@ -174,20 +174,88 @@ public class search_fragment extends Fragment {
                             JSONObject news = (JSONObject)news_prot.get(0);
                             String title = news.getString("title");
                             String link = news.getString("link");
+
+
+
+
                             stock_data.clear();
                             stockname = name;
                             stock_data.add("Name: " + name);
                             stock_data.add("index:" + index);
-                            stock_data.add("Score: " + score);
                             stock_data.add("News");
                             stock_data.add("Title: " + title + "\n" + "Link: " + link);
 
 
-                            writelist(view);
+
 
                             System.out.println(name + "|"
-                            + index + "|" + score + "|" + title + "|" + link + "|");
+                            + index + "|" + "|" + title + "|" + link + "|");
 
+
+                            getstokSummary(symbol, view);
+
+
+
+
+                        } catch (JSONException e) {
+                            System.out.println("ERROR WITH call");
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                System.out.println("ERROR WITH VOLLEY");
+            }
+        });
+        queue.add(jsonObjectRequest);
+
+
+
+    }
+
+    public void getstokSummary(String symbol, View view){
+
+        String url = getString(R.string.URL_SUMMARY) + "SYMBOL=" + symbol;
+        System.out.println(url);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        try {
+
+                            //json object for summarry and prices.
+                            JSONObject summary = null;
+                            JSONObject price = null;
+                            JSONObject regMarketPriceOBJ = null;
+
+
+                            //get objects
+                            summary = response.getJSONObject("summaryprofile");
+                            price = response.getJSONObject("price");
+                            regMarketPriceOBJ = price.getJSONObject("regularMarketPrice");
+
+
+
+                            //get data as strings
+                            String longsummary = summary.getString("longBusinessSummary");
+
+
+                            String index = regMarketPriceOBJ.getString("fmt");
+
+
+
+
+
+                            stock_data.add("Summary of Company: " + longsummary);
+                            stock_data.add("index:" + index + "$");
+
+
+
+
+
+                            writelist(view);
 
 
 
