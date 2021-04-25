@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import android.content.SharedPreferences;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -59,43 +60,42 @@ public class favorite_fragment extends Fragment {
             System.out.println(stock_list.size() + " list size");
 
             dbHelper = new DBHelper(getContext());
-
-
-
             stock_list = dbHelper.getFavArray(user.getEmail());
+
+
+
             writelist(view);
             // User is signed in
         } else {
+            Toast.makeText(getContext(), "Sign In to See Favorites", Toast.LENGTH_LONG).show();
             System.out.println();
             System.out.println("user signed out");
+            stock_list = null;
             // No user is signed in
         }
 
-        list.setOnItemClickListener( new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                FragmentManager fragmentManager = getFragmentManager();
-                fragmentManager.beginTransaction().replace(R.id.fragment_container
-                        , new search_fragment()).commit();
-            }
+        if(stock_list != null) {
+            list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                    FragmentManager fragmentManager = getFragmentManager();
+                    Bundle argument = new Bundle();
+                    String favsearch = list.getItemAtPosition(position).toString();
+                    argument.putString("VALUE1", favsearch);
+
+
+                    search_fragment search_frag = new search_fragment();
+                    search_frag.setArguments(argument);
+                    fragmentManager.beginTransaction().replace(R.id.fragment_container
+                            , search_frag).commit();
+
+
+                }
             });
-        list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                System.out.println("long click");
-                PopupWindow popup = new PopupWindow(getContext());
-                popup.showAtLocation(getView(), Gravity.CENTER, 10, 10);
-                popup.update(20, 20, 30, 30);
-                return false;
-            }
-        });
 
-
-
-
-
-
+        }
 
 
         return view;
@@ -110,8 +110,6 @@ public class favorite_fragment extends Fragment {
         list.setAdapter(itemsAdapter);
         System.out.println("stock list above");
     }
-
-
 
 
 }

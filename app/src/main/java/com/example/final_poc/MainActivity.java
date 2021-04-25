@@ -7,12 +7,14 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
@@ -46,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private GoogleSignInClient mGoogleSignInClient;
     private DBHelper dbHelper = new DBHelper(this);
 
+    private ProgressBar load;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,12 +66,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
 
+
+
         NavigationView navigationView = (NavigationView) findViewById(R.id.nv);
         View headerview = navigationView.getHeaderView(0);
         TextView navuser = (TextView) headerview.findViewById(R.id.Username);
         TextView navemail = (TextView) headerview.findViewById(R.id.email);
 
+
+        AppCompatActivity mainActivity = (AppCompatActivity)this;
+        mainActivity.setContentView(R.layout.activity_main);
+
+
+
+
+
+
+        System.out.println(load);
+
+
+
         FirebaseUser account = FirebaseAuth.getInstance().getCurrentUser();
+
         if(account != null) {
 
             System.out.println(account.getDisplayName());
@@ -164,6 +184,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .requestEmail()
                 .build();
 
+
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
     }
 
@@ -172,9 +193,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Intent signinIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signinIntent, RC_SIGN_IN);
 
+
+
     }
     public void signOut(View v){
         FirebaseAuth.getInstance().signOut();
+
+
+        mGoogleSignInClient.signOut().addOnCompleteListener(this,
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Toast.makeText(MainActivity.this,"Signed Out", Toast.LENGTH_LONG).show();
+
+                    }
+                });
+
+
         NavigationView navigationView = (NavigationView) findViewById(R.id.nv);
         View headerview = navigationView.getHeaderView(0);
         TextView navuser = (TextView) headerview.findViewById(R.id.Username);
@@ -195,22 +230,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (requestCode == RC_SIGN_IN) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
+
+
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = task.getResult(ApiException.class);
 
 
                 firebaseAuthWithGoogle(account.getIdToken());
 
-                //SharedPreferences.Editor editor = getSharedPreferences("MyPrefs", MODE_PRIVATE)
-                ///        .edit();
-                //editor.putString("Username", account.getDisplayName()).commit();
-                //editor.putString("Useremail", account.getEmail()).commit();
 
 
 
-                //SharedPreferences preferences = this.getSharedPreferences("MyPrefs", MODE_PRIVATE);
-                //String user = preferences.getString("Username", "nope still");
-                //String name = preferences.getString("Useremail", "nope still");
+
 
                 User userAccount = new User(-1, account.getDisplayName(), account.getEmail(), "");
 
@@ -240,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 navuser.setText(name);
                 navemail.setText(email);
 
-
+                Toast.makeText(MainActivity.this,"Signed In", Toast.LENGTH_LONG).show();
 
 
 

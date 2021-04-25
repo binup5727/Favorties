@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,9 +45,12 @@ public class search_fragment extends Fragment {
     private RequestQueue queue;
     ArrayList<String> stock_data = new ArrayList<String>();
     private ListView list;
+    ProgressBar progressBar;
 
     DBHelper dbHelper;
     private String stockname;
+
+
 
     @Nullable
     @Override
@@ -67,6 +71,18 @@ public class search_fragment extends Fragment {
         addfav = view.findViewById(R.id.addfav);
         removefav = view.findViewById(R.id.removefav);
         input = view.findViewById(R.id.stock);
+        progressBar = view.findViewById(R.id.progressBar2);
+        progressBar.setVisibility(View.GONE);
+
+        Bundle bundle = this.getArguments();
+        if(bundle != null && stock_data !=null){
+            String search = bundle.getString("VALUE1", "NO SEARCH");
+            getstock(search, view);
+        }
+
+        if(stock_data != null){
+            writelist(view);
+        }
 
 
         search_btn.setOnClickListener(new View.OnClickListener() {
@@ -74,7 +90,11 @@ public class search_fragment extends Fragment {
             public void onClick(View v) {
                 String stock = String.valueOf(input.getText());
                 System.out.println(stock);
+
                 getstock(stock, view);
+
+
+                //writelist(view);
 
 
 
@@ -87,14 +107,20 @@ public class search_fragment extends Fragment {
         addfav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 System.out.println("starting favorite function");
                 FirebaseUser account = FirebaseAuth.getInstance().getCurrentUser();
                 if(account != null) {
+
                     if(stockname != null) {
+
+                        progressBar.setVisibility(View.VISIBLE);
                         dbHelper = new DBHelper(getContext());
                         String add = stockname;
                         System.out.println(stock_data.get(0) + "name of stock to favorite");
                         dbHelper.addfav(account.getEmail(), add);
+                        Toast.makeText(v.getContext(),"Favorite Added", Toast.LENGTH_LONG).show();
+                        progressBar.setVisibility(View.GONE);
                     }else{
                         Toast.makeText(getContext(), "Please Make a Search First", Toast.LENGTH_LONG).show();
 
@@ -115,10 +141,13 @@ public class search_fragment extends Fragment {
                 FirebaseUser account = FirebaseAuth.getInstance().getCurrentUser();
                 if(account != null) {
                     if(stockname != null) {
+                        progressBar.setVisibility(View.VISIBLE);
                         dbHelper = new DBHelper(getContext());
                         String remove = stockname;
                         System.out.println(stock_data.get(0) + "name of stock to favorite");
                         dbHelper.remove(account.getEmail(), remove);
+                        Toast.makeText(v.getContext(),"Favorite Removed", Toast.LENGTH_LONG).show();
+                        progressBar.setVisibility(View.GONE);
                     }else{
                         Toast.makeText(getContext(), "Please Make a Search First", Toast.LENGTH_LONG).show();
 
@@ -155,13 +184,18 @@ public class search_fragment extends Fragment {
 
         String url = getString(R.string.URL) + "q=" + stock;
         System.out.println(url);
+
+        progressBar.setVisibility(View.VISIBLE);
+
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
 
                         try {
+
                             JSONArray stock = null;
+
                             stock = response.getJSONArray("quotes");
                             JSONObject usstock = (JSONObject) stock.get(0);
                             String name = usstock.getString("longname");
@@ -181,7 +215,7 @@ public class search_fragment extends Fragment {
                             stock_data.clear();
                             stockname = name;
                             stock_data.add("Name: " + name);
-                            stock_data.add("index:" + index);
+                            stock_data.add("index: " + index);
                             stock_data.add("News");
                             stock_data.add("Title: " + title + "\n" + "Link: " + link);
 
@@ -198,6 +232,7 @@ public class search_fragment extends Fragment {
 
 
                         } catch (JSONException e) {
+                            Toast.makeText(view.getContext(),"ERROR", Toast.LENGTH_LONG).show();
                             System.out.println("ERROR WITH call");
                         }
 
@@ -205,6 +240,7 @@ public class search_fragment extends Fragment {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                Toast.makeText(view.getContext(),"ERROR", Toast.LENGTH_LONG).show();
                 System.out.println("ERROR WITH VOLLEY");
             }
         });
@@ -216,7 +252,7 @@ public class search_fragment extends Fragment {
 
     public void getstokSummary(String symbol, View view){
 
-        String url = getString(R.string.URL_SUMMARY) + "SYMBOL=" + symbol;
+        String url = getString(R.string.URL_SUMMARY) + "symbol=" + symbol;
         System.out.println(url);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
@@ -225,6 +261,7 @@ public class search_fragment extends Fragment {
 
                         try {
 
+
                             //json object for summarry and prices.
                             JSONObject summary = null;
                             JSONObject price = null;
@@ -232,8 +269,11 @@ public class search_fragment extends Fragment {
 
 
                             //get objects
-                            summary = response.getJSONObject("summaryprofile");
+                            summary = response.getJSONObject("summaryProfile");
+                            System.out.println(summary.getString("longBusinessSummary"));
+
                             price = response.getJSONObject("price");
+                            System.out.println(price.getJSONObject("regularMarketPrice"));
                             regMarketPriceOBJ = price.getJSONObject("regularMarketPrice");
 
 
@@ -247,20 +287,21 @@ public class search_fragment extends Fragment {
 
 
 
-
+                            stock_data.add("Regular Market Price: " + index + "$");
                             stock_data.add("Summary of Company: " + longsummary);
-                            stock_data.add("index:" + index + "$");
 
 
+                            System.out.println("here");
 
 
-
+                            progressBar.setVisibility(View.GONE);
                             writelist(view);
-
+                            System.out.println("here");
 
 
 
                         } catch (JSONException e) {
+                            System.out.println(e.getStackTrace());
                             System.out.println("ERROR WITH call");
                         }
 
